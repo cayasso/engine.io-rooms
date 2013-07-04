@@ -1,6 +1,7 @@
 # Engine.IO Rooms
 
 [![Build Status](https://travis-ci.org/cayasso/engine.io-rooms.png?branch=master)](https://travis-ci.org/cayasso/engine.io-rooms)
+[![NPM version](https://badge.fury.io/js/engine.io-rooms.png)](http://badge.fury.io/js/engine.io-rooms)
 
 Low level Node.JS module, that adds room capabilities to an Engine.IO server.
 
