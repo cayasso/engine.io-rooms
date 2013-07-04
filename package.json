@@ -1,0 +1,32 @@
+{
+  "name": "engine.io-rooms",
+  "version": "0.0.1",
+  "description": "Simple rooms wrapper for engine.io",
+  "author": "Jonathan Brumley <cayasso@gmail.com>",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cayasso/engine.io-rooms.git"
+  },
+  "keywords": [
+    "rooms",
+    "channels",
+    "realtime",
+    "websocket",
+    "engine.io",
+    "socket.io"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "debug": "0.7.x"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "expect.js": "*",
+    "engine.io": "0.6.x",
+    "engine.io-client": "0.6.x"
+  }
+}
