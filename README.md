@@ -1,5 +1,7 @@
 # Engine.IO Rooms
 
+[![Build Status](https://secure.travis-ci.org/cayasso/engine.io-rooms.png)](http://travis-ci.org/cayasso/engine.io-rooms)
+
 ## Instalation
 
 ```
