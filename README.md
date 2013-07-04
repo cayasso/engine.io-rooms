@@ -1,6 +1,6 @@
 # Engine.IO Rooms
 
-[![Build Status](https://secure.travis-ci.org/cayasso/engine.io-rooms.png)](http://travis-ci.org/cayasso/engine.io-rooms)
+[![Build Status](https://travis-ci.org/cayasso/engine.io-rooms.png?branch=master)](https://travis-ci.org/cayasso/engine.io-rooms)
 
 ## Instalation
 
