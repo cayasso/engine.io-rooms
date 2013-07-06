@@ -1,47 +1,52 @@
-var rooms = require('../../');
+var PrimusRooms = require('../../');
+var Primus = require('primus');
 var http = require('http');
-var engine = require('engine.io');
-var client = require('engine.io-client');
 var server = http.createServer();
-var io = engine.attach(server);
 
-// Add room functionality to io
-io = rooms(io);
+// Add room functionality to primus
+PrimusRooms(Primus);
+
+// THE SERVER
+var primus = new Primus(server, { transformer: 'sockjs', parser: 'JSON' });
 
 // Server stuff
-io.on('connection', function(socket){
+primus.on('connection', function(spark){
 
   // testing regular
-  socket.on('message', function(data){
+  spark.on('data', function(data){
 
     // joining a room
-    socket.join(data);
+    spark.join(data);
 
     // broadcasting to rooms
     if (data === 'me') {
       console.log('------- ------- -------');
-      socket.room('room1 room2 room3 room4').send('- WELCOME -');
-      socket.room('room4').send('- BIENVENIDOS -');
-      socket.leave(data);
+      spark.room('room1 room2 room3 room4').write('- WELCOME -');
+      spark.room('room4').write('- BIENVENIDOS -');
+      spark.leave(data);
     }
   });
 });
 
+
+
+// THE CLIENT
 function setClient (room) {
 
-  var socket = client('ws://localhost:8080');
+  var Socket = primus.Socket;
+  var socket = new Socket('ws://localhost:8080');
 
   if (room === 'me') {
     setInterval(function(){
-      socket.send(room);
+      socket.write(room);
     }, 1500);
   } else {
-    socket.send(room);
+    socket.write(room);
   }
 
-  // on message received
-  socket.on('message', function (data) {
-    console.log('MSG:', data, 'SOCK:', socket.id);
+  // on data received
+  socket.on('data', function (data) {
+    console.log('MSG:', data);
   });
 }
 
