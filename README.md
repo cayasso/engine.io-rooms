@@ -39,10 +39,10 @@ io.on('connection', function (socket) {
   console.log(myRooms); // ['room1', 'room3']
 
   // send data to room1
-  socket.room('room1');
+  socket.room('room1').send('hi');
 
   // send data to room1 & room3
-  socket.room('room1 room3');
+  socket.room('room1 room3').send('hi');
 
   // get clients connected to room1
   socket.room('room1').clients(function(clients) {
