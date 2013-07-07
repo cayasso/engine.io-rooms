@@ -1,44 +1,33 @@
 {
-  "name": "primus-rooms",
+  "name": "engine.io-rooms",
   "version": "0.1.0",
-  "description": "Simple rooms wrapper for Primus",
+  "description": "Simple rooms wrapper for engine.io",
   "author": "Jonathan Brumley <cayasso@gmail.com>",
-  "homepage": "https://github.com/cayasso/primus-rooms",
+  "homepage": "https://github.com/cayasso/engine.io-rooms",
   "main": "index.js",
   "scripts": {
     "test": "make test"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/cayasso/primus-rooms.git"
+    "url": "git://github.com/cayasso/engine.io-rooms.git"
   },
   "keywords": [
-    "connection",
-    "ws",
     "rooms",
     "channels",
     "realtime",
     "websocket",
     "engine.io",
-    "socket.io",
-    "plugin",
-    "sockjs",
-    "browserchannel"
+    "socket.io"
   ],
   "license": "MIT",
   "dependencies": {
-    "debug": "0.7.x"    
+    "debug": "0.7.x"
   },
   "devDependencies": {
     "mocha": "*",
     "expect.js": "*",
-    "primus": "1.0.x",
-    "socket.io-client": "~0.9.16",
-    "engine.io-client": "~0.6.3",
-    "sockjs-client-node": "0.0.0",
-    "engine.io": "~0.6.3",
-    "socket.io": "~0.9.16",
-    "ws": "~0.4.27",
-    "sockjs": "~0.3.7"
+    "engine.io": "0.6.x",
+    "engine.io-client": "0.6.x"
   }
 }

@@ -1,14 +1,14 @@
-# Primus Rooms
+# Engine.IO Rooms
 
-[![Build Status](https://travis-ci.org/cayasso/primus-rooms.png?branch=master)](https://travis-ci.org/cayasso/primus-rooms)
-[![NPM version](https://badge.fury.io/js/primus-rooms.png)](http://badge.fury.io/js/primus-rooms)
+[![Build Status](https://travis-ci.org/cayasso/engine.io-rooms.png?branch=master)](https://travis-ci.org/cayasso/engine.io-rooms)
+[![NPM version](https://badge.fury.io/js/engine.io-rooms.png)](http://badge.fury.io/js/engine.io-rooms)
 
-Node.JS module that adds room capabilities to a [Primus](https://github.com/3rd-Eden/primus) server.
+Low level Node.JS module, that adds room capabilities to an Engine.IO server.
 
 ## Instalation
 
 ```
-npm install primus-rooms
+npm install engine.io-rooms
 ```
 
 ## Usage
@@ -16,46 +16,45 @@ npm install primus-rooms
 ### On the Server
 
 ```
-var primus = require('primus');
-var PrimusRooms = require('primus-rooms');
+var rooms = require('engine.io-rooms');
+var engine = require('engine.io');
 var server = require('http').createServer();
+var io = engine(server);
 
-// add rooms to Primus
-PrimusRooms(Primus);
+// add rooms to eio
+io = rooms(io);
 
-var primus = new Primus(server, { transformer: 'websockets', parser: 'JSON' });
-
-primus.on('connection', function (spark) {
+io.on('connection', function (socket) {
 
   // joining room1 & room2
-  spark.join('room1');
-  spark.join('room2');
-  spark.join('room3');
+  socket.join('room1');
+  socket.join('room2');
+  socket.join('room3');
 
   // leaving room room2
-  spark.leave('room2');
+  socket.leave('room2');
 
   // get rooms I am connected to
-  var myRooms = spark.rooms();
+  var myRooms = socket.rooms();
   console.log(myRooms); // ['room1', 'room3']
 
   // send data to room1
-  spark.room('room1').write('hi');
+  socket.room('room1');
 
   // send data to room1 & room3
-  spark.room('room1 room3').write('hi');
+  socket.room('room1 room3');
 
   // get clients connected to room1
-  spark.room('room1').clients(function(clients) {
-    console.log(clients); // output array of spark ids
+  socket.room('room1').clients(function(clients) {
+    console.log(clients); // output array of socket ids
   });
 
   // leaving all rooms
-  spark.leaveAll();
+  socket.leaveAll();
 
   // join rooms on request
-  spark.on('message', function(room) {
-    spark.join(room);
+  socket.on('message', function(room) {
+    socket.join(room);
   });
 
 });
@@ -70,7 +69,7 @@ var socket = eio('ws://localhost');
 socket.onopen = function(){
 
   // Join the news room
-  socket.write('news');
+  socket.send('news');
 };
 
 ```

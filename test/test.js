@@ -1,232 +1,204 @@
-var Primus = require('primus');
-var PrimusRooms = require('../');
+
+var rooms = require('../index');
+var eio = require('engine.io');
+var ioc = require('engine.io-client');
 var http = require('http').Server;
 var expect = require('expect.js');
-var opts = { transformer: 'sockjs', parser: 'JSON' };
 
-// Use rooms plugin
-PrimusRooms(Primus);
-
-// creates a spark.io client for the given server
-function client(srv, primus, port){
+// creates a conn.io client for the given server
+function client(srv){
   var addr = srv.address();
-  var url = 'http://' + addr.address + ':' + (port || addr.port);
-  return new primus.Socket(url);
+  var url = 'ws://' + addr.address + ':' + addr.port;
+  return ioc(url);
 }
 
-describe('primus-rooms', function () {
+describe('engine.io-rooms', function () {
 
   it('should have required methods', function(done){
     var srv = http();
-    var primus = new Primus(srv, opts);
-    srv.listen(function(){
-      primus.on('connection', function (spark) {        
-        expect(spark.join).to.be.a('function');
-        expect(spark.leave).to.be.a('function');
-        expect(spark.leaveAll).to.be.a('function');
-        expect(spark.room).to.be.a('function');
-        expect(spark.broadcast).to.be.a('function');
+    var io = rooms(eio(srv));
+    srv.listen(function(){      
+      io.on('connection', function (conn) {
+        expect(conn.join).to.be.a('function');
+        expect(conn.leave).to.be.a('function');
+        expect(conn.leaveAll).to.be.a('function');
+        expect(conn.room).to.be.a('function');
         done();
       });
-      client(srv, primus);
+      client(srv);
     });
   });
 
   it('should join room', function(done){
     var srv = http();
-    var primus = new Primus(srv, opts);
+    var io = rooms(eio(srv));
     srv.listen(function(){      
-      primus.on('connection', function(spark){
-        spark.join('room1');
-        spark.room('room1').clients(function (err, clients) {
-          expect(~clients.indexOf(spark.id)).to.be.ok();
+      io.on('connection', function(conn){
+        conn.join('room1');
+        conn.room('room1').clients(function (err, clients) {
+          expect(~clients.indexOf(conn.id)).to.be.ok();
           done();
         });
       });
-      client(srv, primus);
+      client(srv);
     });
   });
 
   it('should leave room', function(done){
     var srv = http();
-    var primus = new Primus(srv, opts);
+    var io = rooms(eio(srv));
     srv.listen(function(){      
-      primus.on('connection', function(spark){
-        spark.join('room1');
-        spark.leave('room1');
-        spark.room('room1').clients(function (err, clients) {
-          expect(~clients.indexOf(spark.id)).not.to.be(true);
+      io.on('connection', function(conn){
+        conn.join('room1');
+        conn.leave('room1');
+        conn.room('room1').clients(function (err, clients) {
+          expect(~clients.indexOf(conn.id)).not.to.be(true);
           done();
         });
       });
-      client(srv, primus);
+      client(srv);
     });
   });
 
   it('should leave all rooms', function(done){
     var srv = http();
-    var primus = new Primus(srv, opts);
-    srv.listen(function(){
-      primus.on('connection', function(spark){
-        spark.join('room1');
-        spark.join('room2');
-        spark.join('room3');
-        spark.leaveAll();
-        spark.room('room1').clients(function (err, clients) {
-          expect(~clients.indexOf(spark.id)).not.to.be(true);
+    var io = rooms(eio(srv));
+    srv.listen(function(){      
+      io.on('connection', function(conn){
+        conn.join('room1');
+        conn.join('room2');
+        conn.join('room3');
+        conn.leaveAll();
+        conn.room('room1').clients(function (err, clients) {
+          expect(~clients.indexOf(conn.id)).not.to.be(true);
           done();
         });
       });
-      client(srv, primus);
-    });
-  });
-
-  it('should allow simple connection', function(done){
-    this.timeout(0);
-    var srv = http();
-    var primus = new Primus(srv, opts);
-
-    srv.listen(function(){
-      var c1 = client(srv, primus);
-      primus.on('connection', function(spark){
-        spark.on('data', function (data) {
-          spark.write(data);
-        });
-      });
-
-      c1.on('open', function () {
-        c1.on('data', function (data) {
-          if ('send' === data); done();
-        });
-      });
-      c1.write('send');
+      client(srv);
     });
   });
 
   it('should allow sending to multiple rooms', function(done){
-    this.timeout(0);
     var srv = http();
-    var primus = new Primus(srv, opts);
+    var io = rooms(eio(srv));
     var total = 3;
     srv.listen(function(){
 
-      var c1 = client(srv, primus);
-      var c2 = client(srv, primus);
-      var c3 = client(srv, primus);
-      var c4 = client(srv, primus);
-      var c5 = client(srv, primus);
+      var c1 = client(srv);
+      var c2 = client(srv);
+      var c3 = client(srv);
+      var c4 = client(srv);
+      var c5 = client(srv);
 
-      primus.on('connection', function(spark){
-        spark.on('data', function (data) {
-          spark.join(data);
+      io.on('connection', function(conn){
+        conn.on('message', function (data) {
+          conn.join(data);
           if (data === 'send') {
-            spark.leave('send');
-            spark.room('room1 room2 room3 room4').write('a');
+            conn.leave('send');
+            conn.room('room1 room2 room3 room4').send('a');
           }
         });
       });
 
-      c1.on('data', function (data) {
+      c1.on('message', function (data) {
         done(new Error('not'));
       });
 
-      c2.on('data', function (data) {
+      c2.on('message', function (data) {
         --total || done();
       });
 
-      c3.on('data', function (data) {
+      c3.on('message', function (data) {
         --total || done();
       });
 
-      c4.on('data', function (data) {
+      c4.on('message', function (data) {
         --total || done();
       });
 
-      c5.on('data', function (data) {
+      c5.on('message', function (data) {
         done(new Error('not'));
       });
 
-      c1.write('room1');
-      c2.write('room1');
-      c2.write('room2');
-      c3.write('room3');
-      c4.write('room4');
-      c5.write('room5');
+      c1.send('room1');
+      c2.send('room1');
+      c2.send('room2');
+      c3.send('room3');
+      c4.send('room4');
+      c5.send('room5');
 
-      setTimeout(function() {
-        c1.write('send');
-      }, 50);
+      // need to add a small delay
+      setTimeout(function () {
+        c1.send('send');
+      }, 15);
 
     });
   });
 
   it('should avoid sending dupes', function(done){
-    this.timeout(0);
     var srv = http();
-    var primus = new Primus(srv, opts);
+    var io = rooms(eio(srv));
     var total = 2;
 
     srv.listen(function(){      
-      primus.on('connection', function(spark){
-        spark.join('room1');
-        spark.join('room2');
-        spark.join('room3');
-        spark.join('room4');
-        spark.on('data', function (data) {
+      io.on('connection', function(conn){
+        conn.join('room1');
+        conn.join('room2');
+        conn.join('room3');
+        conn.join('room4');
+        conn.on('message', function (data) {
           if (data === 'send') {
-            spark.room('room1 room2 room3').write('a');
+            conn.room('room1 room2 room3').send('a');
           }
         });
       });
-      var c1 = client(srv, primus);
-      var c2 = client(srv, primus);
-      var c3 = client(srv, primus);
+      var c1 = client(srv);
+      var c2 = client(srv);
+      var c3 = client(srv);
 
-      c2.on('data', function (data) {
+      c2.on('message', function (data) {
         expect('a' === data);
         --total || done();
       });
 
-      c3.on('data', function (data) {
+      c3.on('message', function (data) {
         expect('a' === data);
         --total || done();
       });
 
-      setTimeout(function() {
-        c1.write('send');
-      }, 50);
+      c1.send('send');
     });
   });
 
-  it('should get all clients(id) connected to a room', function(done){
+  it('should get all client ids connected to a room', function(done){
     var srv = http();
-    var primus = new Primus(srv, opts);
+    var io = rooms(eio(srv));
     var ids = [];
     srv.listen(function(){      
-      primus.on('connection', function(spark){
-        ids.push(spark.id);
-        spark.join('room1');
-        spark.on('data', function (){
-          spark.room('room1').clients(function (err, clients) {
+      io.on('connection', function(conn){
+        ids.push(conn.id);
+        conn.join('room1');
+        conn.on('message', function (){
+          conn.room('room1').clients(function (err, clients) {
             expect(clients).to.be.eql(ids);
             done();
           });
         });
       });
-      client(srv, primus);
-      client(srv, primus);
-      client(srv, primus);
-      client(srv, primus)
-      .write('send');
+      client(srv);
+      client(srv);
+      client(srv);
+      client(srv)
+      .send('send');
     });
   });
 
   it('should keeps track of rooms', function(done){
     var srv = http();
-    var primus = new Primus(srv, opts);
+    var io = rooms(eio(srv));
     srv.listen(function(){
-      var conn = client(srv, primus);
-      primus.on('connection', function(s){
+      var conn = client(srv);
+      io.on('connection', function(s){
         s.join('a', function(){
           expect(s.rooms()).to.eql(['a']);
           s.join('b', function(){
