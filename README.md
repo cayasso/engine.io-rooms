@@ -13,7 +13,7 @@ npm install engine.io-rooms
 
 ## Usage
 
-### On the Server
+#### On the Server
 
 ```
 var rooms = require('engine.io-rooms');
@@ -62,9 +62,49 @@ io.on('connection', function (socket) {
 server.listen(8080);
 ```
 
+#### On the Client
+
+```
+var socket = eio('ws://localhost');
+socket.onopen = function(){
+
+  // Join the news room
+  socket.send('news');
+};
+
+```
+
 ## API
 
-### socket#join(name, fn)
+### Rooms(io, [options])
+
+Add rooms functionality to `engine.io` server instance. 
+The options parameter is optional.
+
+```
+Rooms(io);
+
+// or do with a custom adapter
+Rooms(io, { adapter: MyAdapter });
+```
+
+// Options are:
+
+`options.adapter`
+
+### Rooms#adapter(Adapter)
+
+Set your own `adapter` for rooms, by default `engine.io-rooms` comes 
+with its own `memory` adapter but its easy to provide a custom one.
+
+```
+Rooms(io);
+
+// set to my own adapter
+Rooms.adapter(MyAdapter);
+```
+
+### socket#join(name, [fn])
 
 Join client to a `name`, `fn` is optional callback.
 
@@ -78,7 +118,7 @@ Join multiple rooms at the same time.
 socket.join('room1 room2 room3', fn);
 ```
 
-### socket#room(name, fn)
+### socket#room(name, [fn])
 
 Target an specific `room`.
 
@@ -103,7 +143,7 @@ Get all clients `id` connected to specific `room`.
 socket.room('room').clients();
 ```
 
-### socket#leave('room')
+### socket#leave(name)
 
 Leave an specific `room`.
 
@@ -131,18 +171,6 @@ Get all rooms client is connected to.
 
 ```
 socket.rooms();
-```
-
-### On the Client
-
-```
-var socket = eio('ws://localhost');
-socket.onopen = function(){
-
-  // Join the news room
-  socket.send('news');
-};
-
 ```
 
 ## Run tests
