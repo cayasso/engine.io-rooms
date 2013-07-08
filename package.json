@@ -1,6 +1,6 @@
 {
   "name": "engine.io-rooms",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Simple rooms wrapper for engine.io",
   "author": "Jonathan Brumley <cayasso@gmail.com>",
   "homepage": "https://github.com/cayasso/engine.io-rooms",
