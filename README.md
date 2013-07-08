@@ -16,13 +16,13 @@ npm install engine.io-rooms
 #### On the Server
 
 ```
-var rooms = require('engine.io-rooms');
+var Rooms = require('engine.io-rooms');
 var engine = require('engine.io');
 var server = require('http').createServer();
 var io = engine(server);
 
 // add rooms to eio
-io = rooms(io);
+io = Rooms(io);
 
 io.on('connection', function (socket) {
 
@@ -88,7 +88,7 @@ Rooms(io);
 Rooms(io, { adapter: MyAdapter });
 ```
 
-// Options are:
+Options are:
 
 `options.adapter`
 
@@ -127,7 +127,7 @@ socket.room('room').send('hi');
 socket.room('room').clients();
 ```
 
-### room#.send(message)
+### socket#room#send(message)
 
 Send a message to an specific `room`.
 
@@ -135,7 +135,7 @@ Send a message to an specific `room`.
 socket.room('room').send('hi');
 ```
 
-### room#clients()
+### socket#room#clients()
 
 Get all clients `id` connected to specific `room`.
 
