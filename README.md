@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/cayasso/engine.io-rooms.png?branch=master)](https://travis-ci.org/cayasso/engine.io-rooms)
 [![NPM version](https://badge.fury.io/js/engine.io-rooms.png)](http://badge.fury.io/js/engine.io-rooms)
 
-Low level Node.JS module, that adds room capabilities to an Engine.IO server.
+Node.JS module, that adds room capabilities to an Engine.IO server.
 
 ## Instalation
 
@@ -60,6 +60,77 @@ io.on('connection', function (socket) {
 });
 
 server.listen(8080);
+```
+
+## API
+
+### socket#join(name, fn)
+
+Join client to a `name`, `fn` is optional callback.
+
+```
+socket.join('room');
+```
+
+Join multiple rooms at the same time.
+
+```
+socket.join('room1 room2 room3', fn);
+```
+
+### socket#room(name, fn)
+
+Target an specific `room`.
+
+```
+socket.room('room').send('hi');
+socket.room('room').clients();
+```
+
+### room#.send(message)
+
+Send a message to an specific `room`.
+
+```
+socket.room('room').send('hi');
+```
+
+### room#clients()
+
+Get all clients `id` connected to specific `room`.
+
+```
+socket.room('room').clients();
+```
+
+### socket#leave('room')
+
+Leave an specific `room`.
+
+```
+socket.leave('room');
+```
+
+Leave multiple rooms at once.
+
+```
+socket.leave('room1 room2 room3');
+```
+
+### socket#leaveAll()
+
+Leave all rooms the client has joined.
+
+```
+socket.leaveAll();
+```
+
+### socket#rooms()
+
+Get all rooms client is connected to.
+
+```
+socket.rooms();
 ```
 
 ### On the Client
