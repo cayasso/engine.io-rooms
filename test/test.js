@@ -44,10 +44,68 @@ describe('engine.io-rooms', function () {
     });
   });
 
-  it('should leave room', function(done){
+  it('should join multiple rooms at once', function(done){
     var srv = http();
     var io = rooms(eio(srv));
     srv.listen(function(){      
+      io.on('connection', function(conn){
+        conn.join('room1 room2 room3', function(){
+          conn.room('room1').clients(function (err, clients) {
+            expect(~clients.indexOf(conn.id)).to.be.ok();
+            conn.room('room2').clients(function (err, clients) {
+              expect(~clients.indexOf(conn.id)).to.be.ok();
+              conn.room('room3').clients(function (err, clients) {
+                expect(~clients.indexOf(conn.id)).to.be.ok();
+                done();
+              });
+            });
+          });
+        });    
+      });
+      client(srv);
+    });
+  });
+
+  it('should join multiple rooms at once passing an array as argument', function(done){
+    var srv = http();
+    var io = rooms(eio(srv));
+    srv.listen(function(){
+      io.on('connection', function(conn){
+        conn.join(['room1', 'room2', 'room3'], function(){
+          conn.room('room1').clients(function (err, clients) {
+            expect(~clients.indexOf(conn.id)).to.be.ok();
+            conn.room('room2').clients(function (err, clients) {
+              expect(~clients.indexOf(conn.id)).to.be.ok();
+              conn.room('room3').clients(function (err, clients) {
+                expect(~clients.indexOf(conn.id)).to.be.ok();
+                done();
+              });
+            });
+          });
+        });
+      });
+      client(srv);
+    });
+  });
+
+  it('should get all rooms client is connected to', function(done){
+    var srv = http();
+    var io = rooms(eio(srv));
+    srv.listen(function(){
+      io.on('connection', function(conn){
+        conn.join('room1 room2 room3', function () {          
+          expect(conn.rooms()).not.to.be(['room1', 'room2', 'room3']);
+          done();
+        });       
+      });
+      client(srv);
+    });
+  });
+
+  it('should leave room', function(done){
+    var srv = http();
+    var io = rooms(eio(srv));
+    srv.listen(function(){
       io.on('connection', function(conn){
         conn.join('room1');
         conn.leave('room1');
@@ -55,6 +113,38 @@ describe('engine.io-rooms', function () {
           expect(~clients.indexOf(conn.id)).not.to.be(true);
           done();
         });
+      });
+      client(srv);
+    });
+  });
+
+  it('should leave multiple rooms at once', function(done){
+    var srv = http();
+    var io = rooms(eio(srv));
+    srv.listen(function(){      
+      io.on('connection', function(conn){
+        conn.join('room1 room2 room3 room4', function () {
+          conn.leave('room1 room2 room3', function(){
+            expect(conn.rooms()).not.to.be(['room4']);
+            done();
+          });
+        });       
+      });
+      client(srv);
+    });
+  });
+
+  it('should leave multiple rooms at once passing an array', function(done){
+    var srv = http();
+    var io = rooms(eio(srv));
+    srv.listen(function(){      
+      io.on('connection', function(conn){
+        conn.join('room1 room2 room3 room4', function () {
+          conn.leave(['room1', 'room2', 'room3'], function(){
+            expect(conn.rooms()).not.to.be(['room4']);
+            done();
+          });
+        });       
       });
       client(srv);
     });
@@ -70,6 +160,28 @@ describe('engine.io-rooms', function () {
         conn.join('room3');
         conn.leaveAll();
         conn.room('room1').clients(function (err, clients) {
+          expect(~clients.indexOf(conn.id)).not.to.be(true);
+          done();
+        });
+      });
+      client(srv);
+    });
+  });
+
+  it('should allow method channing', function(done){
+    var srv = http();
+    var io = rooms(eio(srv));
+    srv.listen(function(){      
+      io.on('connection', function(conn){
+        conn
+        .join('room1')
+        .join('room2')
+        .join('room3')
+        .leave('room1')
+        .leave('room2')
+        .leave('room3')
+        .room('room1')
+        .clients(function (err, clients) {
           expect(~clients.indexOf(conn.id)).not.to.be(true);
           done();
         });
