@@ -36,7 +36,7 @@ describe('engine.io-rooms', function () {
       io.on('connection', function(conn){
         conn.join('room1');
         conn.room('room1').clients(function (err, clients) {
-          expect(~clients.indexOf(conn.id)).to.be.ok();
+          expect(!!~clients.indexOf(conn.id)).to.be.ok();
           done();
         });
       });
@@ -51,11 +51,11 @@ describe('engine.io-rooms', function () {
       io.on('connection', function(conn){
         conn.join('room1 room2 room3', function(){
           conn.room('room1').clients(function (err, clients) {
-            expect(~clients.indexOf(conn.id)).to.be.ok();
+            expect(!!~clients.indexOf(conn.id)).to.be.ok();
             conn.room('room2').clients(function (err, clients) {
-              expect(~clients.indexOf(conn.id)).to.be.ok();
+              expect(!!~clients.indexOf(conn.id)).to.be.ok();
               conn.room('room3').clients(function (err, clients) {
-                expect(~clients.indexOf(conn.id)).to.be.ok();
+                expect(!!~clients.indexOf(conn.id)).to.be.ok();
                 done();
               });
             });
@@ -73,11 +73,11 @@ describe('engine.io-rooms', function () {
       io.on('connection', function(conn){
         conn.join(['room1', 'room2', 'room3'], function(){
           conn.room('room1').clients(function (err, clients) {
-            expect(~clients.indexOf(conn.id)).to.be.ok();
+            expect(!!~clients.indexOf(conn.id)).to.be.ok();
             conn.room('room2').clients(function (err, clients) {
-              expect(~clients.indexOf(conn.id)).to.be.ok();
+              expect(!!~clients.indexOf(conn.id)).to.be.ok();
               conn.room('room3').clients(function (err, clients) {
-                expect(~clients.indexOf(conn.id)).to.be.ok();
+                expect(!!~clients.indexOf(conn.id)).to.be.ok();
                 done();
               });
             });
@@ -94,7 +94,7 @@ describe('engine.io-rooms', function () {
     srv.listen(function(){
       io.on('connection', function(conn){
         conn.join('room1 room2 room3', function () {          
-          expect(conn.rooms()).not.to.be(['room1', 'room2', 'room3']);
+          expect(conn.rooms()).to.eql(['room1', 'room2', 'room3']);
           done();
         });       
       });
@@ -110,7 +110,7 @@ describe('engine.io-rooms', function () {
         conn.join('room1');
         conn.leave('room1');
         conn.room('room1').clients(function (err, clients) {
-          expect(~clients.indexOf(conn.id)).not.to.be(true);
+          expect(!!~clients.indexOf(conn.id)).to.be(false);
           done();
         });
       });
@@ -125,7 +125,7 @@ describe('engine.io-rooms', function () {
       io.on('connection', function(conn){
         conn.join('room1 room2 room3 room4', function () {
           conn.leave('room1 room2 room3', function(){
-            expect(conn.rooms()).not.to.be(['room4']);
+            expect(conn.rooms()).to.eql(['room4']);
             done();
           });
         });       
@@ -141,10 +141,10 @@ describe('engine.io-rooms', function () {
       io.on('connection', function(conn){
         conn.join('room1 room2 room3 room4', function () {
           conn.leave(['room1', 'room2', 'room3'], function(){
-            expect(conn.rooms()).not.to.be(['room4']);
+            expect(conn.rooms()).to.be.eql(['room4']);
             done();
           });
-        });       
+        });
       });
       client(srv);
     });
@@ -159,10 +159,8 @@ describe('engine.io-rooms', function () {
         conn.join('room2');
         conn.join('room3');
         conn.leaveAll();
-        conn.room('room1').clients(function (err, clients) {
-          expect(~clients.indexOf(conn.id)).not.to.be(true);
-          done();
-        });
+        expect(conn.rooms()).to.be.eql([]);
+        done();
       });
       client(srv);
     });
@@ -182,7 +180,7 @@ describe('engine.io-rooms', function () {
         .leave('room3')
         .room('room1')
         .clients(function (err, clients) {
-          expect(~clients.indexOf(conn.id)).not.to.be(true);
+          expect(!!~clients.indexOf(conn.id)).to.eql(false);
           done();
         });
       });
