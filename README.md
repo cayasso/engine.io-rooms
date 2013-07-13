@@ -106,13 +106,13 @@ Rooms.adapter(MyAdapter);
 
 ### socket#join(name, [fn])
 
-Join client to a `name`, `fn` is optional callback.
+Join client to a `room`, `fn` is optional callback.
 
 ```
 socket.join('room');
 ```
 
-Join multiple rooms at the same time.
+Join multiple rooms at once.
 
 ```
 socket.join('room1 room2 room3', fn);
@@ -120,7 +120,7 @@ socket.join('room1 room2 room3', fn);
 
 ### socket#room(name, [fn])
 
-Target an specific `room`.
+Target a specific `room`.
 
 ```
 socket.room('room').send('hi');
@@ -129,7 +129,7 @@ socket.room('room').clients();
 
 ### socket#room#send(message)
 
-Send a message to an specific `room`.
+Send a message to a specific `room`.
 
 ```
 socket.room('room').send('hi');
@@ -145,7 +145,7 @@ socket.room('room').clients();
 
 ### socket#leave(name)
 
-Leave an specific `room`.
+Leave a specific `room`.
 
 ```
 socket.leave('room');
@@ -167,7 +167,7 @@ socket.leaveAll();
 
 ### socket#rooms()
 
-Get all rooms client is connected to.
+Get all the rooms client is connected to.
 
 ```
 socket.rooms();
