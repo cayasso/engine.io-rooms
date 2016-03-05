@@ -8,6 +8,14 @@ var expect = require('expect.js');
 // creates a conn.io client for the given server
 function client(srv){
   var addr = srv.address();
+
+  // Host `::` is a valid IPv6 host.
+  // engine.io-client is not parsing `::` as a host.
+  // To fix this issue, we have to use `localhost`.
+  if (addr.address === '::') {
+    addr.address = 'localhost';
+  }
+
   var url = 'ws://' + addr.address + ':' + addr.port;
   return ioc(url);
 }
