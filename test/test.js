@@ -248,7 +248,7 @@ describe('engine.io-rooms', function () {
       // need to add a small delay
       setTimeout(function () {
         c1.send('send');
-      }, 15);
+      }, 500);
 
     });
   });
